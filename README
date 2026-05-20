@@ -1,9 +1,6 @@
 # rl-trading
 
-This project is focused on building a reinforcement learning environment for stock market trading using historical market data. 
-The current version includes a simulated trading system with support for multiple stocks, portfolio tracking, and a DQN-based agent 
-that learns through interaction with the environment. The main goal is to experiment with RL algorithms and gradually improve 
-the environment to support more realistic trading behavior and advanced portfolio management strategies.
+This project is focused on building a reinforcement learning environment for stock market trading using historical market data. The current version includes a simulated trading system with support for multiple stocks, portfolio tracking, and a DQN-based agent that learns through interaction with the environment. The main goal is to experiment with RL algorithms and gradually improve the environment to support more realistic trading behavior and advanced portfolio management strategies.
 
 Current version supports:
 - Multiple stocks
