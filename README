@@ -10,7 +10,7 @@ Current version supports:
 - Historical daily data
 - Simulated trading environment
 
---------------------------------------------------
+--------------------------------------------
 
 ## Current Action Space
 
@@ -20,7 +20,21 @@ Current version supports:
 3 = BUY NVDA
 4 = SELL NVDA
 
---------------------------------------------------
+-------------------------------------------
+
+## Structure
+
+agents/
+    dqn.py
+env/
+    trading_env.py
+data/
+    apple.csv
+    nvidia.csv
+data_loader.py
+train.py
+
+-------------------------------------------
 
 ## TODO
 
