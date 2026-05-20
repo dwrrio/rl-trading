@@ -1,43 +1,35 @@
 import gymnasium as gym
+
 from gymnasium import spaces
 
 import numpy as np
-import pandas as pd
 
 
 class TradingEnv(gym.Env):
 
-    def __init__(self, df, initial_cash=10000):
+    def __init__(
+        self,
+        df,
+        initial_cash=10000
+    ):
 
-        super(TradingEnv, self).__init__()
-
+        super().__init__()
         self.df = df.reset_index(drop=True)
         self.initial_cash = initial_cash
-        
-        """
-        0 = HOLD
-        1 = BUY
-        2 = SELL
-        """
-        self.action_space = spaces.Discrete(3)
 
-        """
-        Observation:
+        # ACTION SPACE
 
-        [
-            Open,
-            High,
-            Low,
-            Close,
-            Volume,
-            Cash,
-            Shares Held
-        ]
-        """
+        # 0 = HOLD
+        # 1 = BUY AAPL
+        # 2 = SELL AAPL
+        # 3 = BUY NVDA
+        # 4 = SELL NVDA
+        self.action_space = spaces.Discrete(5)
+
         self.observation_space = spaces.Box(
             low=0,
             high=np.inf,
-            shape=(7,),
+            shape=(13,),
             dtype=np.float32
         )
 
@@ -46,10 +38,13 @@ class TradingEnv(gym.Env):
     def reset(self, seed=None, options=None):
 
         super().reset(seed=seed)
-
         self.current_step = 0
         self.cash = self.initial_cash
-        self.shares_held = 0
+        self.positions = {
+            "AAPL": 0,
+            "NVDA": 0
+        }
+
         self.portfolio_value = self.initial_cash
         observation = self._get_observation()
         info = {}
@@ -58,58 +53,93 @@ class TradingEnv(gym.Env):
 
     def _get_observation(self):
 
-        row = self.df.loc[self.current_step]
+        row = self.df.iloc[self.current_step]
 
         observation = np.array([
-            row["Open"],
-            row["High"],
-            row["Low"],
-            row["Close"],
-            row["Volume"],
+            row["AAPL_Open"],
+            row["AAPL_High"],
+            row["AAPL_Low"],
+            row["AAPL_Close"],
+            row["AAPL_Volume"],
+            row["NVDA_Open"],
+            row["NVDA_High"],
+            row["NVDA_Low"],
+            row["NVDA_Close"],
+            row["NVDA_Volume"],
             self.cash,
-            self.shares_held
+            self.positions["AAPL"],
+            self.positions["NVDA"]
+
         ], dtype=np.float32)
 
         return observation
 
     def step(self, action):
 
-        current_price = self.df.loc[self.current_step, "Close"]
+        row = self.df.iloc[
+            self.current_step
+        ]
+
         previous_portfolio_value = self.portfolio_value
 
+        aapl_price = row["AAPL_Close"]
+        nvda_price = row["NVDA_Close"]
+
+        # HOLD
         if action == 0:
             pass
-        
-        elif action == 1:
-            if self.cash >= current_price:
-                self.cash -= current_price
-                self.shares_held += 1
 
+        # BUY AAPL
+        elif action == 1:
+            if self.cash >= aapl_price:
+                self.cash -= aapl_price
+                self.positions["AAPL"] += 1
+
+        # SELL AAPL
         elif action == 2:
-            if self.shares_held > 0:
-                self.cash += current_price
-                self.shares_held -= 1
+            if self.positions["AAPL"] > 0:
+                self.cash += aapl_price
+                self.positions["AAPL"] -= 1
+
+        # BUY NVDA
+        elif action == 3:
+            if self.cash >= nvda_price:
+                self.cash -= nvda_price
+                self.positions["NVDA"] += 1
+
+        # SELL NVDA
+        elif action == 4:
+            if self.positions["NVDA"] > 0:
+                self.cash += nvda_price
+                self.positions["NVDA"] -= 1
 
         self.current_step += 1
-        done = self.current_step >= len(self.df) - 1
-        next_price = self.df.loc[self.current_step, "Close"]
+        done = self.current_step >= (len(self.df) - 1)
+        next_row = self.df.iloc[self.current_step]
 
         self.portfolio_value = (
-            self.cash +
-            (self.shares_held * next_price)
+            self.cash
+            + (self.positions["AAPL"] * next_row["AAPL_Close"])
+            + (self.positions["NVDA"] * next_row["NVDA_Close"])
         )
 
-        reward = (
-            self.portfolio_value -
-            previous_portfolio_value
-        )
-
+        reward = self.portfolio_value - previous_portfolio_value
         observation = self._get_observation()
 
         info = {
             "cash": self.cash,
-            "shares_held": self.shares_held,
-            "portfolio_value": self.portfolio_value
+            "portfolio_value":
+                self.portfolio_value,
+            "aapl_shares":
+                self.positions["AAPL"],
+            "nvda_shares":
+                self.positions["NVDA"]
         }
 
-        return observation, reward, done, False, info
+        return (
+            observation,
+            reward,
+            done,
+            False,
+            info
+        )
