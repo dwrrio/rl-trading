@@ -1,1 +1,47 @@
-rl-trading
+# rl-trading
+
+This project is focused on building a reinforcement learning environment for stock market trading using historical market data. 
+The current version includes a simulated trading system with support for multiple stocks, portfolio tracking, and a DQN-based agent 
+that learns through interaction with the environment. The main goal is to experiment with RL algorithms and gradually improve 
+the environment to support more realistic trading behavior and advanced portfolio management strategies.
+
+Current version supports:
+- Multiple stocks
+- Portfolio tracking
+- Buy / Sell / Hold actions
+- DQN agent
+- Historical daily data
+- Simulated trading environment
+
+--------------------------------------------------
+
+## Current Action Space
+
+0 = HOLD
+1 = BUY AAPL
+2 = SELL AAPL
+3 = BUY NVDA
+4 = SELL NVDA
+
+--------------------------------------------------
+
+## TODO
+
+- Continuous action space
+- Variable position sizing
+- Transaction fees
+- More stocks
+- Technical indicators
+- Observation windows
+- PPO implementation
+- LSTM model
+- Transformer model
+- Better reward functions
+- Backtesting
+- Paper trading
+
+--------------------------------------------------
+
+## Notes
+
+This project is still experimental and under development.
