@@ -3,11 +3,9 @@ import numpy as np
 
 from env.trading_env import TradingEnv
 from agents.dqn import DQNAgent
+from data_loader import load_multi_stock_data
 
-
-df = pd.read_csv("data/apple.csv")
-
-
+df = load_multi_stock_data()
 env = TradingEnv(df)
 state_size = env.observation_space.shape[0]
 action_size = env.action_space.n
